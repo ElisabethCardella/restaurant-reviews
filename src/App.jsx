@@ -1,11 +1,15 @@
-
-import './App.css';
+import { ChakraProvider } from "@chakra-ui/react";
+import Header from "./components/Header"
+import Map from "./components/Map"
+import Restaurants from "./components/Restaurants"
 
 function App() {
   return (
-    <div>
-      I love my babyyyyyyyyyyyyyyyyyyyyyy
-    </div>
+    <ChakraProvider>
+      <Header />
+      <Map /> 
+      <Restaurants />
+    </ChakraProvider>
   );
 }
 
