@@ -1,4 +1,18 @@
 export const getRestaurants = () => {
+  var myPlace = { lat: 25.276987, lng: 55.296249 };
+
+  var service = new window.google.maps.places.PlacesService();
+  service.nearbySearch(
+    {
+      location: myPlace,
+      radius: 5500,
+      type: ["restaurant"],
+    },
+    function (results, status) {
+      console.log(results);
+    }
+  );
+
   return [
     {
       restaurantName: "Bronco",
