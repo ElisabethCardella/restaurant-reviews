@@ -10,88 +10,151 @@ import {
   ModalCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { getRestaurantDetails } from "../../services/restaurants";
+import { Select } from "@chakra-ui/react";
 
 const Restaurants = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const restaurants = getRestaurants();
+  const [restaurants, setRestaurants] = useState([]);
+  const [restaurantDetails, setRestaurantDetails] = useState(null);
 
-  function getAverage(ratings) {
-    const sum = ratings.reduce((sum, rating) => sum + rating.stars, 0);
+  const [ratingFilter, setRatingFilter] = useState(null);
 
-    return sum / ratings.length;
-  }
+  const loadRestaurants = async () => {
+    const rest = await getRestaurants();
 
-  /*function getAverage(ratings) {
-    let sum = 0;
-    for (let i = 0; i < ratings.length; i++) {
-      sum = sum + ratings[i].stars;
-    }
-    return sum / ratings.length;
-  }*/
+    setRestaurants(rest);
+  };
+
+  loadRestaurants();
 
   return (
-    <Table variant="simple">
-      <Thead>
-        <Tr>
-          <Th>Nom </Th>
-          <Th>Adresse</Th>
-          <Th>Notation</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        {restaurants.map((restaurant) => {
-          return (
-            <Tr>
-              <Td>
-                <Modal isOpen={isOpen} onClose={onClose}>
-                  <ModalOverlay />
-                  <ModalContent>
-                    <ModalHeader>{restaurant.restaurantName}</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                      <Table variant="simple">
-                        <Thead>
-                          <Tr>
-                            <Th>Notation </Th>
-                            <Th>Commentaires</Th>
-                          </Tr>
-                        </Thead>
-                        <Tbody>
-                          <Td>
-                            {restaurant.ratings.map((rating) => (
+    <div>
+      <Select
+        onChange={(event) => {
+          setRatingFilter(event.target.value);
+        }}
+      >
+        <option value="1a2">1 à 2 étoiles</option>
+        <option value="2a3">2 à 3 étoiles</option>
+        <option value="3a4">3 à 4 étoiles</option>
+        <option value="4a5">4 à 5 étoiles</option>
+        <option selected="selected" value="tous">
+          {" "}
+          Tous
+        </option>
+      </Select>
+      <Table variant="simple">
+        <Thead>
+          <Tr>
+            <Th>Nom </Th>
+            <Th>Adresse</Th>
+            <Th>Notation</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {restaurants
+            ?.filter((restaurant) => {
+              if (
+                ratingFilter === "tous" &&
+                (restaurant.rating > 5 || restaurant.rating < 1)
+              ) {
+                return false;
+              }
+
+              if (ratingFilter === "1a2" && restaurant.rating > 2) {
+                return false;
+              }
+              if (
+                ratingFilter === "2a3" &&
+                (restaurant.rating > 3 || restaurant.rating < 2)
+              ) {
+                return false;
+              }
+
+              if (
+                ratingFilter === "3a4" &&
+                (restaurant.rating > 4 || restaurant.rating < 3)
+              ) {
+                return false;
+              }
+
+              if (
+                ratingFilter === "4a5" &&
+                (restaurant.rating > 5 || restaurant.rating < 4)
+              ) {
+                console.log("coucou");
+                console.log(restaurant.rating);
+                return false;
+              }
+              return true;
+            })
+
+            .map((restaurant) => {
+              return (
+                <Tr key={restaurant.place_id}>
+                  <Td>
+                    <Modal isOpen={isOpen} onClose={onClose}>
+                      <ModalOverlay />
+                      <ModalContent>
+                        <ModalHeader>{restaurant.name}</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody>
+                          <Table variant="simple">
+                            <Thead>
+                              <Tr>
+                                <Th>Notes </Th>
+
+                                <Th>Commentaires</Th>
+
+                                <Th>Vue de la rue</Th>
+                              </Tr>
+                            </Thead>
+                            <Tbody>
+                              {restaurantDetails?.reviews?.map((review) => {
+                                return (
+                                  <Tr>
+                                    <Td>
+                                      {review.rating}
+
+                                      {/* {restaurant?.ratings?.map((rating) => (
                               <li key={rating.stars}>{rating.stars}</li>
-                            ))}
-                          </Td>
-                          <Td>
-                            {restaurant.ratings.map((rating) => (
-                              <li key={rating.comment}>{rating.comment}</li>
-                            ))}
-                          </Td>
-                        </Tbody>
-                      </Table>
-                    </ModalBody>
-                  </ModalContent>
-                </Modal>
-                <button
-                  onClick={() => {
-                    onOpen();
-                  }}
-                  /*if (restaurant.ratings.length > 4.5) {
-                      restaurant.ratings.forEach((element) => {
-                        console.log(element.stars);
-                      });
-                    }*/
-                >
-                  {restaurant.restaurantName}
-                </button>
-              </Td>
-              <Td>{restaurant.address}</Td>
-              <Td>{getAverage(restaurant.ratings)}</Td>
-            </Tr>
-          );
-        })}
-      </Tbody>
-    </Table>
+                            ))} */}
+                                    </Td>
+                                    <Td>{review.text}</Td>
+                                  </Tr>
+                                );
+                              })}
+                            </Tbody>
+                          </Table>
+                        </ModalBody>
+                      </ModalContent>
+                    </Modal>
+                    <button
+                      onClick={async () => {
+                        onOpen();
+
+                        const restaurantDetails = await getRestaurantDetails(
+                          restaurant.place_id
+                        );
+
+                        console.log(restaurantDetails);
+
+                        setRestaurantDetails(restaurantDetails);
+                      }}
+                    >
+                      {restaurant.name}
+                    </button>
+                  </Td>
+                  <Td>{restaurant.vicinity}</Td>
+                  <Td>{restaurant.rating}</Td>
+                </Tr>
+              );
+            })}
+        </Tbody>
+      </Table>
+    </div>
   );
 };
 export default Restaurants;

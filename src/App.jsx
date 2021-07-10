@@ -8,6 +8,7 @@ function App() {
   return (
     <ChakraProvider>
       <Header />
+
       <Grid templateColumns="repeat(5, 1fr)" gap={6}>
         <GridItem colSpan={4}>
           <Map />

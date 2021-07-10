@@ -30,7 +30,7 @@ function Map() {
   return (
     <GoogleMap mapContainerStyle={containerStyle} center={position} zoom={13}>
       <Marker position={position} />
-      <Marker
+      {/* <Marker
         position={{
           lat: restaurants[0].lat,
           lng: restaurants[0].long,
@@ -41,7 +41,7 @@ function Map() {
           lat: restaurants[1].lat,
           lng: restaurants[1].long,
         }}
-      />
+      /> */}
     </GoogleMap>
   );
 }
